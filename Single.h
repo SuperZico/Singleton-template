@@ -12,23 +12,32 @@
 #define SingleH(name) +(instancetype)shared##name;
 
 #define SingleM(name) static id P=nil;\
+\
 +(void)load{\
-    P=[[self alloc]init];\
+static dispatch_once_t onceToken;\
+dispatch_once(&onceToken, ^{\
+P=[[self alloc]init];\
+});\
 }\
 \
 +(instancetype)shared##name{\
-    return P;\
+return P;\
 }\
 \
 +(instancetype)alloc{\
-    \
-    if (P) {\
-        NSException * excp=[NSException exceptionWithName:@"这是一个单例" reason:@"单例不允许创建多个实例，请用+(instancetype)shared类名 方法获取单例" userInfo:nil];\
-        [excp raise];\
-       \
+if (P) {\
+NSException * excp=[NSException exceptionWithName:@"这是一个单例" reason:@"单例不允许创建多个实例，请用+(instancetype)shared类名 方法获取单例" userInfo:nil];\
+[excp raise];\
 }\
-   \
-    return [super alloc];\
+return [super alloc];\
+}\
+\
+-(id)copy{\
+return P;\
+}\
+\
+-(id)mutableCopy{\
+return P;\
 }\
 
 @end
